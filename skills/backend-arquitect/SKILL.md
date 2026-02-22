@@ -20,11 +20,12 @@ El código debe organizarse estrictamente por módulos funcionales (ej. `feature
 - **Presentation / Web:** Controladores, DTOs, validadores de entrada (Zod, class-validator) y rutas.
 
 ### 2. 🛡️ Share/Common Layer
-Todo lo que es común a todo el sistema y no pertenece a un dominio específico vive en una carpeta `shared/` o `common/` en la raíz (fuera de las features):
-- Filtros globales de excepciones.
-- Clases de Error o Excepciones base (`DomainError`, `NotFoundError`).
-- Utilidades generales (fechas, loggers genéricos).
-- **El bus de eventos de la aplicación (Event Bus / Mediator).**
+Todo lo que es común a todo el sistema y no pertenece a un dominio específico vive en una carpeta `shared/` o `common/` en la raíz (fuera de las features). **El objetivo de esta capa es la Reusabilidad Extrema:**
+- **Centralized Response Handler:** Crea SIEMPRE una clase o función utilitaria (ej. `ApiResponse.success()`, `ApiResponse.error()`) de modo que si el contrato de respuesta cambia mañana, solo modifiques UN archivo.
+- **Filtros globales de excepciones:** Para atrapar errores no manejados.
+- **Clases de Error base:** (`DomainError`, `NotFoundError`).
+- **Helpers y Utils genéricos:** (Formateadores de fechas, calculadoras de impuestos comunes, wrappers de librerías externas).
+- **El bus de eventos de la aplicación:** (Event Bus / Mediator).
 
 ### 3. ⬅️ The Dependency Rule (Inversión de Dependencias)
 **Regla de Oro:** Las dependencias *siempre* deben apuntar hacia adentro, hacia el Dominio. El `Domain` **NO PUEDE** depender de `Infrastructure` ni de `Presentation`. El uso de Interfaces es estricto para invertir dependencias (ej. El Application Layer usa una interface de IUserRepository guardada en Domain, pero la implementación real vive en Infrastructure e inyecta la dependencia).
