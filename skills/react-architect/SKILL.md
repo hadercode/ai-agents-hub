@@ -1,6 +1,6 @@
 ---
 name: react-architect
-description: Ultimate Enterprise Architect para Elemental ERP. Especializado en desacoplamiento, patrones de objetos en props, y refactorización proactiva de componentes reutilizables.
+description: Ultimate Enterprise Architect para Elemental ERP. Especializado en desacoplamiento, patrones de objetos en props, refactorización proactiva y mejores prácticas empresariales (Performance, A11y, Error Handling).
 ---
 
 # 🚀 React Enterprise Architect
@@ -35,3 +35,22 @@ Para facilitar una transición futura o actualizaciones mayores:
     2. Los servicios y llamadas asíncronas dentro de `api/services.ts`.
     3. Los Custom Hooks de React (TanStack Query) en `hooks/` listos para consumirse.
     4. Los componentes de UI en `components/` blindados e integrados para mostrar o mutar esa data específica.
+
+## 🛡️ 6. Manejo de Errores y Estados de Carga (Resilience)
+- **Zero White Screens:** El Agente NUNCA debe dejar que una promesa rechazada rompa la app.
+- **Error Boundaries:** Sugerir y usar Error Boundaries granulares a nivel de feature, no solo globables.
+- **Skeletons over Spinners:** Priorizar el uso de Skeletons (UI de carga fantasmal) antes que simples spinners genéricos para evitar brincos bruscos de UI (Layout Shifts).
+
+## ⚡ 7. Performance y Memoización Estratégica
+- **Avoid Premature Optimization:** No usar `useMemo` o `useCallback` en todos lados "por si acaso".
+- **Targeted Memoization:** Usarlos ÚNICAMENTE cuando se pasen referencias a componentes hijos pesados envueltos en `React.memo`, o cuando haya cálculos verdaderamente costosos.
+- **Debounce/Throttle:** Asegurarse de aplicar debounce en inputs de búsqueda y llamadas recurrentes a la API.
+
+## 📏 8. Convenciones Estrictas de Nomenclatura
+- **Archivos y Componentes:** `PascalCase` (ej: `UserProfile.tsx`).
+- **Hooks:** `camelCase` empezando con `use` (ej: `useUserProfile.ts`).
+- **Interfaces/Tipos:** Preferir prefijar con `I` (ej: `IUserData`) o sufijos claros (ej: `UserDataProps`) según dicte la preferencia del proyecto, pero CERO tipos implícitos (`any`).
+
+## ♿ 9. Accesibilidad (a11y) desde el Día 1
+- **UI Inclusiva:** Todo componente interactivo DEBE ser navegable por teclado.
+- **Aria Attributes:** Usar roles (`role="button"`, `role="dialog"`) y etiquetas adecuadas (`aria-label`, `aria-expanded`, `aria-hidden` para iconos puramente visuales).
