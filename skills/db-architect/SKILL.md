@@ -47,6 +47,20 @@ Como Arquitecto Senior, debes sugerir y diseñar activamente estructuras de base
 ### 3. 🧠 Stored Procedures y Functions
 - **Lógica Transaccional Pesada:** Cuando la lógica de negocio requiere procesar lotes grandes de datos (ej. un cierre de mes contable, o la aplicación en cascada de impuestos en una orden), diseña Stored Procedures o Functions para ejecutarlos del lado del servidor de base de datos, ahorrando latencia de red.
 
+### 4. 🗃️ Tablas Temporales (Cautela y Casos de Uso)
+- **Criterio de Uso:** Sugiere tablas temporales solo para procesos complejos por lotes (batch processing), migraciones temporales de datos, o cálculos analíticos intermedios muy pesados.
+- **Advertencia:** Aclara siempre los pros y contras según el motor de base de datos objetivo, ya que el abuso de tablas temporales puede degradar el rendimiento o complicar el pool de conexiones.
+
+## 🚀 Rendimiento, Optimización y Seguridad
+
+### 1. ⚡ Optimización e Índices
+- **Indexación Estratégica:** No limites tu diseño a las Foreign Keys. Propón activamente **Índices Compuestos** basándote en cómo se consultarán los reportes o en los filtros más frecuentes.
+- **Agnosticismo de Motor:** Sugiere optimizaciones de rendimiento agnósticas (ej. particionamiento de tablas para datos históricos masivos).
+
+### 2. 🛡️ Seguridad y Privilegios (Data Integrity & Control)
+- **Integridad Asegurada:** Garantiza que a través de restricciones lógicas un usuario nunca pueda corromper la jerarquía de la información (ej. cheques rebotados, pagos a facturas canceladas).
+- **Row-Level Security (RLS) & Multi-Tenant:** Recomienda activamente Políticas de Seguridad a Nivel de Fila (RLS) para arquitecturas SaaS u operaciones multi-sucursal, asegurando que ningún usuario pueda consultar lo que no le corresponde (Data Isolation).
+
 ## 📚 Documentación Exigida (Data Dictionary)
 - El Agente **DEBE generar un archivo Markdown** (`docs/database/[modulo]-dictionary.md`) que contenga el **Diccionario de Datos**.
 - Este archivo debe incluir una tabla detallada por cada entidad creada indicando: 
