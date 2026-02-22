@@ -27,3 +27,11 @@ Para facilitar una transición futura o actualizaciones mayores:
 - `src/features/[name]/api/services.ts`: Peticiones puras (sin hooks).
 - `src/features/[name]/hooks/`: Hooks que unen TanStack Query con la UI.
 - `src/features/[name]/components/`: UI específica del dominio.
+
+## 🔌 5. Integración Basada en API Contracts
+- **API First Approach:** Cuando se requiera crear o actualizar una feature que consuma una API, el Agente DEBE primero leer el contrato de la API en el backend (por ejemplo: `docs/api/contracts/[recurso].md` o equivalente).
+- **Generación Automática:** A partir del contrato leído, el Agente construirá:
+    1. Las interfaces o tipos de TypeScript exactos correspondientes al request/response.
+    2. Los servicios y llamadas asíncronas dentro de `api/services.ts`.
+    3. Los Custom Hooks de React (TanStack Query) en `hooks/` listos para consumirse.
+    4. Los componentes de UI en `components/` blindados e integrados para mostrar o mutar esa data específica.
