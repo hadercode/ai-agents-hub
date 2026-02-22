@@ -29,3 +29,6 @@ Desktop.ini
 # Emacs/Vim tmp files
 *~
 *.swp
+
+#Docs
+docs/   
