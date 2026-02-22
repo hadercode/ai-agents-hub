@@ -62,3 +62,21 @@ src/
 - Usa nombres de clases, funciones y variables que sean descriptivos y reflejen la intención del negocio (Ubiquitous Language).
 - Funciones de **Responsabilidad Única** (Solid).
 - Un manejo de errores elegante y centralizado: nunca exponer "stack traces" puros al cliente HTTP. Siempre encapsular en errores de Dominio o de Aplicación.
+
+## 🧪 Estrategia de Testing (Test-Driven)
+- **Unit Tests Privilegiados:** El Agente debe priorizar pruebas unitarias exhaustivas para el **Domain** y **Application** layer usando Mocks/Stubs para cualquier dependencia externa.
+- **Integration Tests:** Para la capa de **Infrastructure** (ej. Repositorios de base de datos) y Controladores, sugerir pruebas de integración con una base de datos en memoria o un entorno de pruebas aislado (ej. Testcontainers).
+
+## 🛡️ Validación Estricta de Entrada
+- **Fail Fast:** Toda petición entrante DEBE ser validada en la capa **Web/Presentation** antes de tocar los Casos de Uso.
+- **Librerías Recomendadas:** Sugiere usar fuertemente esquemas de validación (como Zod, Joi, o class-validator) para DTOs.
+- **Sanitización:** Asegúrate de instruir el filtrado de datos no permitidos (strip unknown) para evitar inyección de propiedades masivas (Mass Assignment).
+
+## 🔄 Manejo de Transacciones (ACID)
+- **Límites de Transacción:** Las transacciones de base de datos deben ser orquestadas desde la capa de **Application** (Casos de Uso), asegurando que si múltiples repositorios son afectados (ej. descontar saldo y crear factura), todo ocurra en un bloque atómico.
+- **Unit of Work:** Si el framework/ORM lo permite, sugiere la implementación del patrón "Unit of Work" o decoradores transaccionales para mantener el caso de uso agnóstico de la conexión SQL.
+
+## 📡 API Design y Respuestas Consistentes
+- **RESTful Estricto:** Los endpoints deben usar sustantivos en plural y usar correctamente los verbos HTTP (`GET`, `POST`, `PUT`, `PATCH`, `DELETE`).
+- **Standard Response Format:** El Agente siempre debe proponer un formato de respuesta estándar (ej. JSEND: `{ status: "success", data: {...} }` o `{ status: "error", message: "..." }`) para facilitar el consumo desde el Frontend.
+- **Códigos HTTP Precisos:** Usar `201 Created`, `400 Bad Request`, `401 Unauthorized`, `403 Forbidden`, `404 Not Found` y `409 Conflict` adecuadamente. NUNCA todo en `200 OK` si hubo un error de negocio.
