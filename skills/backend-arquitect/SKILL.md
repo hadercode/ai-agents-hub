@@ -23,7 +23,7 @@ El código debe organizarse estrictamente por módulos funcionales (ej. `feature
 - **Domain:** Entidades, interfaces (repositories) y reglas de negocio puras. **Cero dependencias externas.**
 - **Application:** Casos de uso (Use Cases / Actions o Commands/Queries). Orquestan el flujo pero no tienen lógica de frameworks.
 - **Infrastructure:** Implementaciones concretas de bases de datos (TypeORM, Prisma, Mongoose), repositorios reales y adaptadores de APIS de terceros.
-- **Presentation:** Controladores, DTOs, validadores de entrada (Zod, class-validator) y rutas.
+- **Presentation:** Controladores, DTOs, validadores de entrada (Zod, class-validator) y rutas. **Regla de Cierre:** El Agente *siempre* debe exponer los Casos de Uso a través de Controladores HTTP definidos en su Contrato API (`api-contract.md`) y anclarlos al Root Module del framework.
 
 ### 2. 🛡️ Share/Common Layer
 Todo lo que es común a todo el sistema y no pertenece a un dominio específico vive en una carpeta `shared/` o `common/` en la raíz (fuera de las features). **El objetivo de esta capa es la Reusabilidad Extrema:**
@@ -59,8 +59,9 @@ src/
 │   ├── inventory/       # Feature: Inventario
 │   │   ├── domain/      # Entidades de negocio puras, Value Objects, Interfaces de Repositorios
 │   │   ├── application/ # Use Cases (CreateProduct, DecreaseStock)
+│   │   │   └── dtos/    # Request y Response DTOs aislados (Regla: 1 Archivo por DTO/Interface)
 │   │   ├── infra/       # PrismaInventoryRepository, adaptadores
-│   │   └── presentation/# InventoryController, Validaciones DTOs
+│   │   └── presentation/# InventoryController, Validaciones Zod
 │   └── billing/         # Feature: Facturación
 └── main.ts              # Entry point e inyección de dependencias (Composition Root)
 ```
