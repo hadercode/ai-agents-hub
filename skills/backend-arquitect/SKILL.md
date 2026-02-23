@@ -17,7 +17,7 @@ El código debe organizarse estrictamente por módulos funcionales (ej. `feature
 - **Domain:** Entidades, interfaces (repositories) y reglas de negocio puras. **Cero dependencias externas.**
 - **Application:** Casos de uso (Use Cases / Actions o Commands/Queries). Orquestan el flujo pero no tienen lógica de frameworks.
 - **Infrastructure:** Implementaciones concretas de bases de datos (TypeORM, Prisma, Mongoose), repositorios reales y adaptadores de APIS de terceros.
-- **Presentation / Web:** Controladores, DTOs, validadores de entrada (Zod, class-validator) y rutas.
+- **Presentation:** Controladores, DTOs, validadores de entrada (Zod, class-validator) y rutas.
 
 ### 2. 🛡️ Share/Common Layer
 Todo lo que es común a todo el sistema y no pertenece a un dominio específico vive en una carpeta `shared/` o `common/` en la raíz (fuera de las features). **El objetivo de esta capa es la Reusabilidad Extrema:**
@@ -54,7 +54,7 @@ src/
 │   │   ├── domain/      # Entidades de negocio puras, Value Objects, Interfaces de Repositorios
 │   │   ├── application/ # Use Cases (CreateProduct, DecreaseStock)
 │   │   ├── infra/       # PrismaInventoryRepository, adaptadores
-│   │   └── web/         # InventoryController, Validaciones DTOs
+│   │   └── presentation/# InventoryController, Validaciones DTOs
 │   └── billing/         # Feature: Facturación
 └── main.ts              # Entry point e inyección de dependencias (Composition Root)
 ```
@@ -69,7 +69,7 @@ src/
 - **Integration Tests:** Para la capa de **Infrastructure** (ej. Repositorios de base de datos) y Controladores, sugerir pruebas de integración con una base de datos en memoria o un entorno de pruebas aislado (ej. Testcontainers).
 
 ## 🛡️ Validación Estricta de Entrada
-- **Fail Fast:** Toda petición entrante DEBE ser validada en la capa **Web/Presentation** antes de tocar los Casos de Uso.
+- **Fail Fast:** Toda petición entrante DEBE ser validada en la capa **Presentation** antes de tocar los Casos de Uso.
 - **Librerías Recomendadas:** Sugiere usar fuertemente esquemas de validación (como Zod, Joi, o class-validator) para DTOs.
 - **Sanitización:** Asegúrate de instruir el filtrado de datos no permitidos (strip unknown) para evitar inyección de propiedades masivas (Mass Assignment).
 
