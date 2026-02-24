@@ -23,7 +23,7 @@ Este flujo define el proceso estandarizado para la "Fábrica de Software" de Ant
   1. Leer requerimientos.
   2. Proponer esquema relacional, redundancias para reportes (Shadow Tables) y reglas de auditoría.
   3. Esperar aprobación de Hadercode.
-- **Output:** Archivos de migración SQL/Prisma y Diccionario de Datos (`db-dictionary.md`).
+- **Output:** Archivos de migración SQL/Prisma y Diccionario de Datos `db-dictionary.md` (Guardado en `docs/database/`).
 
 ---
 
@@ -34,7 +34,7 @@ Este flujo define el proceso estandarizado para la "Fábrica de Software" de Ant
   1. Diseñar la nueva Feature aislando el Dominio (Vertical Slices).
   2. Implementar repositorios, casos de uso (ACID Transactions) y Controladores Web.
   3. Generar eventos para comunicación asíncrona si amerita.
-- **Output:** Código fuente del API y el contrato `api-contract.md` exportado para el frontend.
+- **Output:** Código fuente del API y el contrato `api-contract.md` exportado para el frontend (Guardado en `docs/contracts/`).
 
 ---
 
@@ -66,7 +66,7 @@ Este flujo define el proceso estandarizado para la "Fábrica de Software" de Ant
   1. Dibujar diagramas Mermaid (Secuencia / ERD).
   2. Actualizar README técnico en la ruta respectiva.
   3. Generar borrador del manual de usuario (Español) y actualizar versionado.
-- **Output:** `CHANGELOG.md` actualizado y documentación lista en `/docs/`.
+- **Output:** `CHANGELOG.md` actualizado y documentación lista en `/docs/documentation`.
 
 ---
 
