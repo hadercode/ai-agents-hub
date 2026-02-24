@@ -274,13 +274,13 @@ src/
 - **Códigos HTTP Precisos:** Usar `201 Created`, `400 Bad Request`, `401 Unauthorized`, `403 Forbidden`, `404 Not Found` y `409 Conflict` adecuadamente. NUNCA todo en `200 OK` si hubo un error de negocio.
 
 ### 📝 Generación OBLIGATORIA de API Contract (por Feature)
-**Después de crear o modificar cualquier feature, el Agente DEBE crear o actualizar el archivo `docs/api/<feature-name>.contract.md`.**
+**Después de crear o modificar cualquier feature, el Agente DEBE crear o actualizar el archivo `docs/contracts/<feature-name>.contract.md`.**
 
 El contrato API es el **puente entre Backend y Frontend**. Sin él, el equipo de frontend no puede trabajar.
 
 **Estructura de contratos:**
 ```
-docs/api/
+docs/contracts/
 ├── api-contract.md              ← Índice general + envelope JSend + headers comunes
 ├── iam.contract.md              ← Contrato de la feature IAM
 ├── clinic.contract.md           ← Contrato de la feature Clinic
@@ -302,3 +302,37 @@ docs/api/
 **⛔ PROHIBIDO** dar por terminada una feature si su `<feature-name>.contract.md` no existe o no ha sido actualizado.
 **⛔ PROHIBIDO** documentar un endpoint solo con el path sin incluir los schemas de request/response.
 **⛔ PROHIBIDO** meter los contratos de múltiples features en un solo archivo monolítico.
+
+---
+
+### 📮 Generación OBLIGATORIA de Colección Postman (por Feature)
+**Después de crear o modificar cualquier feature, el Agente DEBE crear o actualizar el archivo `docs/postman/<feature-name>.postman_collection.json`.**
+
+La colección Postman permite al equipo probar los endpoints inmediatamente sin configuración manual. Cada feature genera su propia colección importable.
+
+**Estructura de colecciones Postman:**
+```
+docs/postman/
+├── iam.postman_collection.json       ← Colección de la feature IAM
+├── clinic.postman_collection.json    ← Colección de la feature Clinic
+└── billing.postman_collection.json   ← Colección de la feature Billing
+```
+
+**Reglas:**
+- **1 archivo JSON por feature**: Cada feature tiene su propio `<feature-name>.postman_collection.json`.
+- **Formato Postman Collection v2.1**: Usar el schema `https://schema.getpostman.com/json/collection/v2.1.0/collection.json`.
+- **Variables de colección**: Cada colección debe incluir `{{baseUrl}}` (default `http://localhost:3000`) y `{{token}}` para JWT.
+- **Auth heredado**: Configurar Bearer Token a nivel de colección con `{{token}}`, excepto endpoints públicos (ej. Login) que usan `noauth`.
+- **Auto-save del token**: El request de Login (si aplica) debe incluir un Test Script que guarde automáticamente el JWT en la variable `{{token}}`.
+- **Carpetas internas**: Si la feature tiene sub-recursos (ej. Clinic → Patients + Appointments), organizar los requests en subcarpetas dentro de la colección.
+- Cada request debe incluir:
+  1. **Nombre descriptivo** del endpoint (ej. "Create Patient", "Record Payment")
+  2. **Método HTTP y URL** con path/query variables donde aplique
+  3. **Headers** (Content-Type, etc.)
+  4. **Body de ejemplo** con datos realistas (NO placeholders genéricos como "string")
+  5. **Descripción** con campos requeridos/opcionales y tabla de errores
+  6. **Al menos 1 ejemplo de Response** (`response[]`) con status code, headers y body realista
+
+**⛔ PROHIBIDO** dar por terminada una feature si su `<feature-name>.postman_collection.json` no existe o no ha sido actualizado.
+**⛔ PROHIBIDO** crear requests sin body de ejemplo o sin al menos un response de ejemplo.
+**⛔ PROHIBIDO** mezclar endpoints de múltiples features en un solo archivo de colección.
