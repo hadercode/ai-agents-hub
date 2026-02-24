@@ -54,3 +54,28 @@ Para facilitar una transición futura o actualizaciones mayores:
 ## ♿ 9. Accesibilidad (a11y) desde el Día 1
 - **UI Inclusiva:** Todo componente interactivo DEBE ser navegable por teclado.
 - **Aria Attributes:** Usar roles (`role="button"`, `role="dialog"`) y etiquetas adecuadas (`aria-label`, `aria-expanded`, `aria-hidden` para iconos puramente visuales).
+
+## ✅ 10. Verificación de Completitud contra Contratos (Contract Completeness Gate)
+- **CERO Endpoints Olvidados:** Antes de dar por finalizada cualquier tarea de UI que corresponda a un contrato API, el Agente DEBE hacer una verificación cruzada exhaustiva:
+    1. Leer cada contrato relevante en `docs/contracts/` (o ruta equivalente).
+    2. Listar TODOS los endpoints definidos (GET, POST, PUT, PATCH, DELETE).
+    3. Para CADA endpoint verificar que existen:
+        - ✅ Tipo/Interfaz TypeScript del Request y Response.
+        - ✅ Función de servicio en `api/services.ts`.
+        - ✅ Custom Hook en `hooks/`.
+        - ✅ Componente de UI (lista, formulario, detalle, acción) que lo consume.
+        - ✅ Ruta registrada en el router si el componente es una página.
+    4. Si falta algún elemento, el Agente DEBE implementarlo antes de marcar la tarea como completada.
+- **Checklist Explícita:** Al finalizar, el Agente debe incluir en su resumen una tabla o checklist mapeando cada endpoint → artefactos generados, para que el usuario pueda auditarlo.
+
+## 🔍 11. Campos de Referencia a Entidades (Smart Entity Selectors)
+- **UUID → Searchable Select:** Cuando un formulario tenga un campo de tipo UUID que haga referencia a otra entidad del sistema (ej: `patientId`, `doctorId`, `serviceId`), el Agente DEBE:
+    1. **Analizar** si existe un endpoint de listado (GET) para esa entidad referenciada.
+    2. **Si existe:** Renderizar el campo como un **Select con buscador** (combobox/autocomplete) que cargue las opciones desde el hook correspondiente, mostrando un label legible (ej: nombre + cédula) en vez del UUID crudo.
+    3. **Si NO existe:** Documentar la limitación y usar un input de texto como fallback temporal, dejando un comentario `// TODO: Convertir a searchable select cuando exista el endpoint GET /entidad`.
+- **Patrón Recomendado:** Crear un componente reutilizable `SearchableSelect` en `src/shared/components/` que acepte:
+    - `options: { value: string; label: string }[]`
+    - `isLoading: boolean`
+    - `placeholder: string`
+    - `onSearch?: (query: string) => void` (para filtrado server-side si la lista es grande)
+- **Nunca exponer UUIDs crudos al usuario** en la interfaz; siempre mostrar el nombre u identificador legible de la entidad.
