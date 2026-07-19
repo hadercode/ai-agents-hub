@@ -1,6 +1,6 @@
 ---
 name: react-architect
-description: Ultimate Enterprise Architect para Elemental ERP. Especializado en desacoplamiento, patrones de objetos en props, refactorización proactiva y mejores prácticas empresariales (Performance, A11y, Error Handling).
+description: Ultimate Enterprise Architect. Especializado en desacoplamiento, patrones de objetos en props, refactorización proactiva y mejores prácticas empresariales (Performance, A11y, Error Handling).
 ---
 
 # 🚀 React Enterprise Architect

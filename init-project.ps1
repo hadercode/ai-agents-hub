@@ -48,5 +48,4 @@ Write-Host "==============================================" -ForegroundColor Gre
 Write-Host "Próximos pasos:" -ForegroundColor White
 Write-Host " 1. cd $projectName" -ForegroundColor White
 Write-Host " 2. Abre Antigravity y ejecuta c:\ai-agents-hub\install-hub.ps1." -ForegroundColor White
-Write-Host " 3. Ahora puedes empezar a usar Discovery con tu Gema de PM." -ForegroundColor White
 exit

@@ -23,10 +23,10 @@ Antes de construir cualquier feature, debes asegurarte de que el cascarón del p
 
 ### ⛔ Lista de Prohibiciones Absolutas
 
-1. **PROHIBIDO** dejar carpetas `application/` o `infra/` vacías dentro de una feature.
+1. **PROHIBIDO** dejar carpetas `application/` o `infrastructure/` vacías dentro de un módulo.
 2. **PROHIBIDO** que un Controller devuelva datos hardcodeados (ej. `return []`, `return { id: 'uuid-1', ...body }`).
-3. **PROHIBIDO** usar `body: any` en cualquier Controller. Todo endpoint DEBE tener un DTO tipado con validación.
-4. **PROHIBIDO** que un Use Case importe tipos de la capa Presentation (los DTOs de Presentation no se importan en Application).
+3. **PROHIBIDO** usar `body: any` en cualquier Controller. Todo endpoint DEBE tener un DTO o Request tipado con validación.
+4. **PROHIBIDO** que un Use Case importe tipos de la capa Controllers (los Requests de Controllers no se importan en Application).
 5. **PROHIBIDO** que un Use Case o Controller instancie directamente una implementación concreta de repositorio.
 6. **PROHIBIDO** que el Domain o Application importen `HttpException`, `UnauthorizedException` o cualquier clase HTTP de NestJS.
 7. **PROHIBIDO** crear un Controller sin inyectar su(s) Use Case(s) correspondiente(s) vía DI token.
@@ -56,11 +56,11 @@ Antes de dar por terminada una feature, verifica que **TODOS** estos artefactos 
   □ La implementación es @Injectable()
   □ Los métodos de IBaseRepository están todos implementados
 
-□ Presentation Layer
-  □ DTOs con decoradores de validación (class-validator / Zod)
+□ Controllers Layer
+  □ Requests/Responses con decoradores de validación (class-validator / Zod)
   □ Controller inyecta Use Cases via @Inject(TOKEN)
   □ Controller NO contiene lógica de negocio (solo delega al Use Case)
-  □ Cada endpoint usa DTOs tipados (NUNCA body: any)
+  □ Cada endpoint usa Requests tipadas (NUNCA body: any)
 
 □ Module Wiring
   □ Cada interfaz de repositorio está bindeada: { provide: TOKEN, useClass: Impl }
@@ -72,13 +72,15 @@ Antes de dar por terminada una feature, verifica que **TODOS** estos artefactos 
 
 ## 📐 Reglas de Arquitectura Obligatorias
 
-### 1. 🧩 Feature-Based Structure (Vertical Slices)
-El código debe organizarse estrictamente por módulos funcionales (ej. `features/inventory`, `features/billing`), no por capas técnicas en la raíz. Cada feature debe ser autocontenida y poseer sus propias subcapas:
+### 1. 🧩 Module-Based Structure (Vertical Slices)
+El código debe organizarse estrictamente por módulos funcionales (ej. `modules/inventory`, `modules/billing`), no por capas técnicas en la raíz. Cada módulo debe ser autocontenido y poseer sus propias subcapas:
 
-- **Domain:** Entidades, contratos abstractos (repositories) y reglas de negocio puras. **Cero dependencias externas.**
-- **Application:** Casos de uso (Use Cases / Actions o Commands/Queries). Orquestan el flujo pero no tienen lógica de frameworks.
-- **Infrastructure:** Implementaciones concretas de bases de datos (TypeORM, Prisma, Mongoose), repositorios reales y adaptadores de APIS de terceros.
-- **Presentation:** Controladores, DTOs, validadores de entrada (Zod, class-validator) y rutas. **Regla de Cierre:** El Agente *siempre* debe exponer los Casos de Uso a través de Controladores HTTP definidos en su Contrato API (`api-contract.md`) y anclarlos al Root Module del framework.
+- **Domain:** Entidades, contratos abstractos (repositories) y reglas de negocio puras. **Cero dependencias externas.** (PROHIBIDO usar decoradores de ORM como `@Entity` o `@Column` aquí).
+- **Application:** Casos de uso (Use Cases) y contratos. Orquestan el flujo pero no tienen lógica de frameworks.
+- **Infrastructure:** Implementaciones concretas de bases de datos. 
+  - **Entities:** Decoradores de persistencia (TypeORM, Prisma).
+  - **Repositories:** Lógica de acceso a datos y mapeo (Conversión ORM Entity <-> Domain Entity).
+- **Controllers:** Controladores, Requests, Responses, validadores de entrada...
 
 ### 2. 🔑 Contratos e Inyección de Dependencias (DI)
 
@@ -91,7 +93,7 @@ TypeScript con `emitDecoratorMetadata` + `isolatedModules` requiere tipos que ex
 
 **Patrón correcto:**
 ```typescript
-// domain/user.repository.interface.ts
+// domain/user.repository.contract.ts
 export const USER_REPOSITORY = Symbol('USER_REPOSITORY');
 
 export abstract class IUserRepository implements IBaseRepository<User> {
@@ -124,16 +126,16 @@ export class LoginUseCase implements ILoginUseCase {
 })
 ```
 
-### 3. 🛡️ Share/Common Layer
-Todo lo que es común a todo el sistema y no pertenece a un dominio específico vive en una carpeta `shared/` o `common/` en la raíz (fuera de las features). **El objetivo de esta capa es la Reusabilidad Extrema:**
+### 3. 🛡️ Shared Layer
+Todo lo que es común a todo el sistema y no pertenece a un dominio específico vive en una carpeta `shared/` en la raíz (fuera de los módulos). **El objetivo de esta capa es la Reusabilidad Extrema:**
 
-#### Artefactos OBLIGATORIOS en Common:
-- **`common/domain/base-repository.interface.ts`:** Interfaz genérica base (`IBaseRepository<T>`) con `findById`, `findAll`, `save`, `delete`.
-- **`common/domain/domain-exception.ts`:** Excepciones de dominio puras (SIN dependencias de NestJS):
+#### Artefactos OBLIGATORIOS en Shared:
+- **`shared/domain/base-repository.contract.ts`:** Interfaz genérica base (`IBaseRepository<T>`) con `findById`, `findAll`, `save`, `delete`.
+- **`shared/domain/domain-exception.ts`:** Excepciones de dominio puras (SIN dependencias de NestJS):
   - `DomainException` — base
   - `EntityNotFoundException` — entidad no encontrada
   - `BusinessRuleException` — regla de negocio violada
-- **`common/filters/domain-exception.filter.ts`:** Filtro global que mapea `DomainException` → respuestas HTTP apropiadas.
+- **`shared/filters/domain-exception.filter.ts`:** Filtro global que mapea `DomainException` → respuestas HTTP apropiadas.
 - **Centralized Response Handler:** `ApiResponse.success()`, `ApiResponse.error()`.
 - **Filtros globales de excepciones:** Para atrapar errores no manejados.
 - **Helpers y Utils genéricos:** (Formateadores de fechas, calculadoras de impuestos comunes, wrappers de librerías externas).
@@ -144,9 +146,9 @@ Todo lo que es común a todo el sistema y no pertenece a un dominio específico 
 
 **Flujo de dependencias permitido:**
 ```
-Presentation → Application → Domain ← Infrastructure
+Controllers → Application → Domain ← Infrastructure
      ↓              ↓           ↑          ↑
-  Controller → Use Case → Interface ← Repository Impl
+  Controller → Use Case →  Contract ← Repository Impl
 ```
 
 ### 5. 🏛️ Entidades de Dominio RICAS (No Anémicas)
@@ -215,9 +217,9 @@ Cuando debas planificar o proponer la estructura, siempre usarás este modelo:
 
 ```plaintext
 src/
-├── common/
+├── shared/
 │   ├── domain/
-│   │   ├── base-repository.interface.ts   ← IBaseRepository<T> genérico
+│   │   ├── base-repository.contract.ts    ← IBaseRepository<T> genérico
 │   │   └── domain-exception.ts            ← DomainException, EntityNotFound, BusinessRule
 │   ├── dto/
 │   │   └── api-response.dto.ts            ← ApiResponse.success() / .error()
@@ -227,24 +229,32 @@ src/
 │   └── interceptors/
 │       └── jsend.interceptor.ts           ← Formato estándar de respuesta
 ├── config/                                ← Variables de entorno tipadas
-├── features/
-│   └── <feature-name>/
+├── modules/
+│   └── <module-name>/
 │       ├── domain/
 │       │   ├── <entity>.entity.ts             ← Entidad RICA con lógica de negocio
-│       │   └── <entity>.repository.interface.ts ← Abstract class + Symbol DI token
+│       │   └── <entity>.repository.contract.ts  ← Abstract class + Symbol DI token
 │       ├── application/
-│       │   ├── interfaces/
-│       │   │   └── <action>.use-case.interface.ts ← Abstract class + Symbol DI token
+│       │   ├── contracts/
+│       │   │   └── <action>.use-case.contract.ts  ← Abstract class + Symbol DI token
 │       │   ├── dtos/
 │       │   │   └── <action>.dto.ts            ← Interfaces/types puros (sin decoradores)
-│       │   └── <action>.use-case.ts           ← @Injectable, @Inject(REPO_TOKEN)
-│       ├── infra/
-│       │   └── <entity>.repository.impl.ts    ← extends AbstractClass, @Injectable
-│       ├── presentation/
-│       │   ├── dtos/
-│       │   │   └── <action>.dto.ts            ← Clases con @IsString, @IsEmail, etc.
+│       │   └── use-cases/
+│       │       └── <action>.use-case.ts       ← @Injectable, @Inject(REPO_TOKEN)
+│       ├── infrastructure/
+│       │   ├── entities/
+│       │   │   └── <entity>.orm-entity.ts    ← Decoradores de ORM (TypeORM/Prisma)
+│       │   ├── mappers/
+│       │   │   └── <entity>.mapper.ts         ← Lógica de mapeo Domain <-> ORM (toDomain, toOrm)
+│       │   └── repositories/
+│       │       └── <entity>.repository.impl.ts ← Implementación del contrato usando Mappers y el ORM
+│       ├── controllers/
+│       │   ├── requests/
+│       │   │   └── <action>.request.ts        ← Clases con @IsString, @IsEmail, etc.
+│       │   ├── responses/
+│       │   │   └── <action>.response.ts       ← Clases de respuesta tipadas
 │       │   └── <entity>.controller.ts         ← @Inject(USE_CASE_TOKEN), delega todo
-│       └── <feature-name>.module.ts           ← { provide: TOKEN, useClass: Impl }
+│       └── <module-name>.module.ts            ← { provide: TOKEN, useClass: Impl }
 └── main.ts                                    ← Composition Root + Global Pipes/Filters
 ```
 
@@ -260,8 +270,8 @@ src/
 - **Integration Tests:** Para la capa de **Infrastructure** (ej. Repositorios de base de datos) y Controladores, sugerir pruebas de integración con una base de datos en memoria o un entorno de pruebas aislado (ej. Testcontainers).
 
 ## 🛡️ Validación Estricta de Entrada
-- **Fail Fast:** Toda petición entrante DEBE ser validada en la capa **Presentation** antes de tocar los Casos de Uso.
-- **Librerías Recomendadas:** Sugiere usar fuertemente esquemas de validación (como Zod, Joi, o class-validator) para DTOs.
+- **Fail Fast:** Toda petición entrante DEBE ser validada en la capa **Controllers** antes de tocar los Casos de Uso.
+- **Librerías Recomendadas:** Sugiere usar fuertemente esquemas de validación (como Zod, Joi, o class-validator) para Requests.
 - **Sanitización:** Asegúrate de instruir el filtrado de datos no permitidos (strip unknown) para evitar inyección de propiedades masivas (Mass Assignment).
 
 ## 🔄 Manejo de Transacciones (ACID)
@@ -273,8 +283,8 @@ src/
 - **Standard Response Format:** El Agente siempre debe proponer un formato de respuesta estándar (ej. JSEND: `{ status: "success", data: {...} }` o `{ status: "error", message: "..." }`) para facilitar el consumo desde el Frontend.
 - **Códigos HTTP Precisos:** Usar `201 Created`, `400 Bad Request`, `401 Unauthorized`, `403 Forbidden`, `404 Not Found` y `409 Conflict` adecuadamente. NUNCA todo en `200 OK` si hubo un error de negocio.
 
-### 📝 Generación OBLIGATORIA de API Contract (por Feature)
-**Después de crear o modificar cualquier feature, el Agente DEBE crear o actualizar el archivo `docs/contracts/<feature-name>.contract.md`.**
+### 📝 Generación OBLIGATORIA de API Contract (por Module)
+**Después de crear o modificar cualquier módulo, el Agente DEBE crear o actualizar el archivo `docs/contracts/<module-name>.contract.md`.**
 
 El contrato API es el **puente entre Backend y Frontend**. Sin él, el equipo de frontend no puede trabajar.
 
@@ -282,13 +292,13 @@ El contrato API es el **puente entre Backend y Frontend**. Sin él, el equipo de
 ```
 docs/contracts/
 ├── api-contract.md              ← Índice general + envelope JSend + headers comunes
-├── iam.contract.md              ← Contrato de la feature IAM
-├── clinic.contract.md           ← Contrato de la feature Clinic
-└── billing.contract.md          ← Contrato de la feature Billing
+├── iam.contract.md              ← Contrato del módulo IAM
+├── clinic.contract.md           ← Contrato del módulo Clinic
+└── billing.contract.md          ← Contrato del módulo Billing
 ```
 
 **Reglas:**
-- **1 archivo por feature**: Cada feature tiene su propio `<feature-name>.contract.md`.
+- **1 archivo por módulo**: Cada módulo tiene su propio `<module-name>.contract.md`.
 - **Índice actualizado**: Después de crear un nuevo contrato, actualizar la tabla del índice en `api-contract.md`.
 - Cada endpoint documentado debe incluir:
   1. **Método HTTP y ruta** (ej. `POST /patients`)
@@ -305,21 +315,21 @@ docs/contracts/
 
 ---
 
-### 📮 Generación OBLIGATORIA de Colección Postman (por Feature)
-**Después de crear o modificar cualquier feature, el Agente DEBE crear o actualizar el archivo `docs/postman/<feature-name>.postman_collection.json`.**
+### 📮 Generación OBLIGATORIA de Colección Postman (por Module)
+**Después de crear o modificar cualquier módulo, el Agente DEBE crear o actualizar el archivo `docs/postman/<module-name>.postman_collection.json`.**
 
-La colección Postman permite al equipo probar los endpoints inmediatamente sin configuración manual. Cada feature genera su propia colección importable.
+La colección Postman permite al equipo probar los endpoints inmediatamente sin configuración manual. Cada módulo genera su propia colección importable.
 
 **Estructura de colecciones Postman:**
 ```
 docs/postman/
-├── iam.postman_collection.json       ← Colección de la feature IAM
-├── clinic.postman_collection.json    ← Colección de la feature Clinic
-└── billing.postman_collection.json   ← Colección de la feature Billing
+├── iam.postman_collection.json       ← Colección del módulo IAM
+├── clinic.postman_collection.json    ← Colección del módulo Clinic
+└── billing.postman_collection.json   ← Colección del módulo Billing
 ```
 
 **Reglas:**
-- **1 archivo JSON por feature**: Cada feature tiene su propio `<feature-name>.postman_collection.json`.
+- **1 archivo JSON por módulo**: Cada módulo tiene su propio `<module-name>.postman_collection.json`.
 - **Formato Postman Collection v2.1**: Usar el schema `https://schema.getpostman.com/json/collection/v2.1.0/collection.json`.
 - **Variables de colección**: Cada colección debe incluir `{{baseUrl}}` (default `http://localhost:3000`) y `{{token}}` para JWT.
 - **Auth heredado**: Configurar Bearer Token a nivel de colección con `{{token}}`, excepto endpoints públicos (ej. Login) que usan `noauth`.

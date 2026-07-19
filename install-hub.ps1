@@ -3,8 +3,8 @@
 Instala el AI Agents Hub (Skills y Workflows) en el proyecto actual de Antigravity.
 
 .DESCRIPTION
-Este script crea un enlace (Junction de Windows) que apunta al repositorio centralizado
-de Skills y Workflows del usuario en la carpeta '.agent' del proyecto actual.
+Este script crea enlaces (Junctions de Windows) que apuntan al repositorio centralizado
+de Skills y configuraciones del usuario en la carpeta '.agents' del proyecto actual.
 De esta manera, no necesitas copiar el código cada vez que inicies un nuevo proyecto, 
 y tus cambios también se reflejarán en tu repositorio centralizado de forma inmediata.
 
@@ -13,7 +13,7 @@ y tus cambios también se reflejarán en tu repositorio centralizado de forma in
 #>
 
 $HubPath = "C:\ai-agents-hub"
-$AgentFolder = ".\.agent"
+$AgentFolder = ".\.agents"
 
 # Verificar si el Hub existe
 if (-not (Test-Path -Path $HubPath)) {
@@ -21,10 +21,10 @@ if (-not (Test-Path -Path $HubPath)) {
     exit 1
 }
 
-# Crear carpeta .agent si no existe en el proyecto
+# Crear carpeta .agents si no existe en el proyecto
 if (-not (Test-Path -Path $AgentFolder)) {
     New-Item -ItemType Directory -Path $AgentFolder | Out-Null
-    Write-Host "[+] Carpeta .agent creada en el directorio actual." -ForegroundColor Green
+    Write-Host "[+] Carpeta .agents creada en el directorio actual." -ForegroundColor Green
 }
 
 # Crear enlaces (Junctions) que no necesitan permisos de Administrador en Windows
@@ -51,10 +51,40 @@ function Invoke-LinkHubFolder($FolderName) {
     }
 }
 
-Invoke-LinkHubFolder "skills"
-Invoke-LinkHubFolder "workflows"
+# Obtener dinámicamente todos los directorios que representan habilidades en el Hub
+# Excluimos directorios del sistema como .git, carpetas ocultas y el propio proyecto de destino si está dentro del Hub
+$CurrentProjectFullPath = (Get-Item .).FullName
+$Skills = Get-ChildItem -Path $HubPath -Directory | Where-Object { 
+    $_.Name -notlike ".*" -and 
+    $_.FullName -ne $CurrentProjectFullPath
+}
+
+Write-Host "Enlazando habilidades del hub..." -ForegroundColor Cyan
+foreach ($Skill in $Skills) {
+    Invoke-LinkHubFolder $Skill.Name
+}
+
+# Vincular o copiar el archivo de reglas AGENTS.md
+$HubAgentsFile = Join-Path -Path $HubPath -ChildPath "AGENTS.md"
+$DestAgentsFile = Join-Path -Path $AgentFolder -ChildPath "AGENTS.md"
+
+if (Test-Path -Path $HubAgentsFile) {
+    if (-not (Test-Path -Path $DestAgentsFile)) {
+        # Intentar crear un enlace físico (Hard Link) para que los cambios se reflejen mutuamente
+        cmd /c "mklink /H `"$DestAgentsFile`" `"$HubAgentsFile`"" > $null
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "[OK] Enlace físico creado para AGENTS.md." -ForegroundColor Green
+        } else {
+            # Si falla (por ejemplo, cruce de unidades de disco), simplemente copiar
+            Copy-Item -Path $HubAgentsFile -Destination $DestAgentsFile -Force
+            Write-Host "[+] Archivo AGENTS.md copiado a la carpeta .agents." -ForegroundColor Green
+        }
+    } else {
+        Write-Host "[-] El archivo AGENTS.md ya existe en $DestAgentsFile. Saltando." -ForegroundColor Yellow
+    }
+}
 
 Write-Host ""
 Write-Host "¡Instalación de AI Agents Hub completada exitosamente!" -ForegroundColor Cyan
-Write-Host "Los skills y workflows centrales ahora están disponibles para este proyecto local." -ForegroundColor Cyan
+Write-Host "Los skills y workflows centrales ahora están disponibles en la carpeta .agents del proyecto actual." -ForegroundColor Cyan
 Write-Host ""

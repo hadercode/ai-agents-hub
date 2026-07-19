@@ -46,12 +46,12 @@ Cada vez que se te asigne la tarea de documentar una nueva funcionalidad o módu
 - **Step-by-Step:** Guías con pasos numerados para completar tareas core (ej. *"Cómo emitir una nota de crédito"*).
 - **FAQ:** Preguntas frecuentes e interpretación de errores de negocio comunes.
 
-## 📐 Estándares de Documentación para Elemental ERP
+## 📐 Estándares de Documentación
 
 - **Tone & Voice:** Profesional, directo, pedagógico y sin tecnicismos innecesarios al hablar con usuarios.
 - **Language Boundary:** Todo código, variables, logs y arquitectura interna se documenta en **Inglés**. Manuales de usuario, descripciones de negocio y FAQs siempre en **Español**.
 - **Self-Explaining Code is a Myth:** El código debe ser limpio, sí, pero tu documentación debe explicar explícitamente **las reglas de negocio y los por qués** que el código fuente no puede expresar por sí solo.
-- **Business Glossary:** Mantener y alimentar un glosario de términos contables y técnicos (ej. *¿Qué significa 'Asiento Contable' en el contexto de Elemental ERP?*).
+- **Business Glossary:** Mantener y alimentar un glosario de términos contables y técnicos (ej. *¿Qué significa 'Asiento Contable' en el contexto del Sistema?*).
 
 ## 🚨 Sección Obligatoria: Doc-Health Check
 

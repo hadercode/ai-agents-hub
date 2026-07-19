@@ -3,10 +3,24 @@
 Este es tu repositorio centralizado de **Skills** y **Workflows** para Antigravity.
 Al usar este repositorio, puedes mantener tu entorno de desarrollo exactamente igual sin importar en qué computadora estés trabajando.
 
-## Estructura
+## Estructura Actual
 
-- `skills/`: Contiene tus "habilidades" personalizadas o de terceros (cada una en su carpeta con un `SKILL.md`).
-- `workflows/`: Contiene flujos de trabajo detallados `.md` sobre cómo realizar tareas específicas.
+El repositorio contiene las siguientes habilidades y configuraciones en la raíz:
+
+- **Habilidades (Skills):**
+  - `backend-arquitect/`: Habilidad para la implementación backend en Clean Architecture.
+  - `db-architect/`: Habilidad para el diseño físico de bases de datos PostgreSQL.
+  - `devops-cloud-architect/`: Habilidad para tareas de despliegue y nube.
+  - `doc-writer/`: Habilidad para redactar documentación técnica.
+  - `git-release-architect/`: Habilidad para gestionar ramas de Git, Commits Convencionales y Releases.
+  - `laravel-domain-architect/`: Habilidad para arquitectura basada en Laravel.
+  - `qa-engineer/`: Habilidad para aseguramiento de calidad y pruebas.
+  - `react-architect/`: Habilidad para la implementación frontend en React Enterprise.
+  - `software-architect-spec-generator/`: Habilidad para generación de especificaciones técnicas y contratos de API.
+- **Configuración Global:**
+  - `AGENTS.md`: Define la guía de workflows (Feature y Fix) y reglas de comportamiento del agente en el proyecto.
+  - `install-hub.ps1`: Script para vincular este repositorio central a un proyecto de desarrollo local.
+  - `init-project.ps1`: Script auxiliar para inicializar la estructura base de un nuevo proyecto.
 
 ## Cómo usar este repositorio
 
@@ -32,19 +46,23 @@ git clone https://github.com/TU_USUARIO/ai-agents-hub.git C:\ai-agents-hub
 
 ### 3. Instala los Skills en un Proyecto Nuevo
 
-Para que Antigravity tenga acceso a estos skills globales en cualquier proyecto en el que estés trabajando, abre una terminal en la raíz de tu proyecto y ejecuta el script de instalación provisto en este repositorio.
+Para que Antigravity tenga acceso a estos skills y workflows en cualquier proyecto local en el que estés trabajando:
+
+1. Abre una terminal en la raíz de tu proyecto de desarrollo.
+2. Ejecuta el script de instalación provisto en este repositorio:
 
 ```powershell
 C:\ai-agents-hub\install-hub.ps1
 ```
 
 > **¿Qué hace el script?**
-> El script crea de forma automática "enlaces simbólicos" (Accesos directos reales de Windows) en tu proyecto (`.agent/skills` y `.agent/workflows`) apuntando a esta carpeta central. De esta forma, Antigravity puede ver y usar todo el contenido de este Hub sin necesidad de duplicarlo en cada proyecto.
+> El script crea de forma automática enlaces de directorio (Junctions de Windows) dentro de la carpeta `.agents/` de tu proyecto apuntando a las habilidades de este Hub central. Además, vincula el archivo [AGENTS.md](file:///c:/ai-agents-hub/AGENTS.md) mediante un enlace físico (Hard Link). 
+> De esta forma, Antigravity puede ver, usar y actualizar las reglas y habilidades sin necesidad de duplicarlas en cada proyecto.
 
 ### ¿Cómo actualizar o agregar algo nuevo?
 
-1. Agrega una nueva carpeta de skill en `C:\ai-agents-hub\skills\`.
+1. Agrega una nueva carpeta de skill directamente en la raíz de `C:\ai-agents-hub\` (asegurándote de incluir su archivo `SKILL.md`).
 2. Haz `git add`, `git commit` y `git push`.
 3. En tu otra computadora haz `git pull` dentro del directorio `C:\ai-agents-hub`.
-4. ¡Listo! Ya estará disponible en todos tus proyectos en ambos equipos.
+4. Vuelve a ejecutar `C:\ai-agents-hub\install-hub.ps1` en tus proyectos locales activos para vincular la nueva habilidad (el script detectará la nueva carpeta dinámicamente y la enlazará).
 
