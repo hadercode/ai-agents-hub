@@ -29,15 +29,15 @@ Este flujo está diseñado para construir funcionalidades desde cero en orden se
 - **Acción:**
   - Definir las tablas físicas, tipos exactos (como `DECIMAL(19,4)` para dinero), relaciones, índices de rendimiento, triggers y políticas de auditoría (`created_at`, `updated_at`, `deleted_at`, `created_by_id`).
 - **🛑 Checkpoint Crítico 2 (Aprobación Lógica de BD):** **Punto de Control Obligatorio.** Antes de escribir código SQL o de persistencia (DDL), presentar un resumen de la BD propuesta y esperar la aprobación del usuario.
-- **Entregable:** Generar el diccionario de datos en `docs/database/[modulo]-dictionary.md` y los scripts SQL necesarios.
+- **Entregable:** Generar el diccionario de datos en `docs/[modulo]/[modulo]-dictionary.md` y los scripts SQL necesarios en `docs/[modulo]/[modulo]-schema.sql`.
 
 ### 🏗️ Fase 3: Implementación Backend (Clean Architecture)
 - **Habilidad a utilizar:** [backend-architect](file:///c:/Projects/NODE/admin-template-free/.agents/backend-arquitect/SKILL.md).
 - **Acción:**
   - Implementar la lógica por módulos (Vertical Slices: Domain, Application, Infra, Controllers).
   - El código de dominio y de casos de uso debe estar libre de frameworks (Inversión de Dependencias usando `abstract class` para DI).
-  - Generar obligatoriamente la documentación de API Contract en `docs/contracts/[modulo].contract.md` y la colección de Postman en `docs/postman/[modulo].postman_collection.json`.
-- **🛑 Checkpoint Crítico 3 (Control de Calidad Backend):** Validar la checklist técnica de backend. No proceder a frontend hasta que los contratos y Postman estén confirmados.
+- Generar obligatoriamente la documentación de API Contract en `docs/[modulo]/[modulo].contract.md`, la colección de Postman individual en `docs/[modulo]/[modulo].postman_collection.json` y actualizar/incluir sus endpoints en la colección de Postman global `docs/identity_api.postman_collection.json`.
+- **🛑 Checkpoint Crítico 3 (Control de Calidad Backend):** Validar la checklist técnica de backend. No proceder a frontend hasta que los contratos y Postman (individual y global) estén confirmados.
 
 ### 💻 Fase 4: Implementación Frontend (React Enterprise)
 - **Habilidad a utilizar:** [react-architect](file:///c:/Projects/NODE/admin-template-free/.agents/react-architect/SKILL.md).
@@ -53,7 +53,13 @@ Este flujo está diseñado para construir funcionalidades desde cero en orden se
   - Ejecutar y crear tests para verificar precisión contable, transacciones, y flujos de error.
   - Emitir obligatoriamente el **Reporte de Riesgos Obligatorio** (`Critical Path`, `Potential Side Effects`, `Security Vulnerability`).
 
-### 🤖 Fase 6: Git & Release
+### 📚 Fase 6: Actualización de Documentación en Docusaurus
+- **Habilidad a utilizar:** [doc-writer](file:///c:/Projects/NODE/admin-template-free/.agents/doc-writer/SKILL.md).
+- **Acción:**
+  - Copiar y sincronizar la documentación técnica del módulo (`docs/[modulo]/`) hacia el portal de Docusaurus en `website/docs/[modulo]/`.
+  - Asegurar que todos los contratos de API, esquemas SQL, diccionarios de datos y reportes de QA estén reflejados y estructurados para que Docusaurus los compile en vivo sin desfases.
+
+### 🤖 Fase 7: Git & Release
 - **Habilidad a utilizar:** [git-release-architect](file:///c:/Projects/NODE/admin-template-free/.agents/git-release-architect/SKILL.md).
 - **Acción:**
   - Confirmar que los commits siguen el estándar de Commits Convencionales.
@@ -76,7 +82,10 @@ Este flujo se activa ante reportes de errores puntuales o solicitudes de modific
 - **Habilidad a utilizar:** [qa-engineer](file:///c:/Projects/NODE/admin-template-free/.agents/qa-engineer/SKILL.md).
 - **Acción:** Asegurar que el cambio corrige el bug y correr tests locales para verificar que no afecte otros módulos críticos.
 
-### 📦 Fase 4: Registro de Versión
+### 📚 Fase 4: Sincronización de Documentación Docusaurus
+- **Acción:** Si el fix alteró algún contrato, DTO o comportamiento documentado, actualizar inmediatamente los archivos correspondientes en `docs/[modulo]/` y `website/docs/[modulo]/` para prevenir documentación obsoleta.
+
+### 📦 Fase 5: Registro de Versión
 - **Habilidad a utilizar:** [git-release-architect](file:///c:/Projects/NODE/admin-template-free/.agents/git-release-architect/SKILL.md).
 - **Acción:** Commit convencional `fix: ...` y actualización de la versión PATCH en `CHANGELOG.md`.
 
@@ -87,3 +96,5 @@ Este flujo se activa ante reportes de errores puntuales o solicitudes de modific
 1. **Mantener la Integridad del Código:** Nunca elimines comentarios existentes o lógica no relacionada a menos que sea explícitamente solicitado.
 2. **Uso de Enlaces Markdown:** Al mencionar archivos o clases, siempre incluye su link absoluto usando el protocolo `file://` (ej. `[UsuarioController](file:///c:/Projects/NODE/admin-template-free/src/modules/users/controllers/user.controller.ts)`).
 3. **No Hardcodear Lógica:** Siempre delega la lógica del controlador a los casos de uso (backend) y no expongas variables de entorno sin encriptar.
+4. **Postman Collections (Módulo y Global):** Cada nuevo módulo o modificación de endpoints debe mantener sincronizada tanto su colección individual en `docs/[modulo]/[modulo].postman_collection.json` como la colección global `docs/identity_api.postman_collection.json`.
+5. **Documentación Docusaurus Siempre al Día:** Todo cambio o nueva funcionalidad debe reflejar inmediatamente su documentación técnica en `website/docs/[modulo]/` para mantener el portal Docusaurus sincronizado.
